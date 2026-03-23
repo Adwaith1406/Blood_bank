@@ -62,7 +62,7 @@
         <div class="container">
             <a class="navbar-brand fw-bold" href="#"><i class="fas fa-tint me-2 text-danger"></i>LifeLine Blood Bank</a>
             <div class="navbar-nav ms-auto">
-                <button type="button" class="btn btn-link btn-sm text-white text-decoration-none p-0">EXIT</button>
+                <button id="exitBtn" type="button" class="btn btn-link btn-sm text-white text-decoration-none p-0">EXIT</button>
             </div>
         </div>
     </nav>
@@ -135,5 +135,24 @@
         </div>
     </footer>
 
+    <script>
+        const exitBtn = document.getElementById('exitBtn');
+        if (exitBtn) {
+            exitBtn.addEventListener('click', () => {
+                const doExit = window.confirm('Exit the app? Unsaved work may be lost.');
+                if (!doExit) return;
+
+                // Attempt to close window (works if opened by script)
+                window.close();
+
+                // Fallback for normal browser tab - redirect to neutral page
+                setTimeout(() => {
+                    if (!window.closed) {
+                        window.location.href = 'about:blank';
+                    }
+                }, 100);
+            });
+        }
+    </script>
 </body>
 </html>
