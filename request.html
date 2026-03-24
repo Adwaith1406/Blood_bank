@@ -186,8 +186,50 @@
                     <h5 class="modal-title">Blood Inventory</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="table-responsive">
+                <div class="modal-body p-0">
+                    <div class="row g-0">
+                        <!-- Left Sidebar Filter -->
+                        <div class="col-md-3 border-end bg-light p-4">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-filter me-2 text-danger"></i>Needed Group</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input hosp-blood-filter" type="checkbox" id="hbgApos" value="A+" onchange="loadInventoryForHospital()">
+                                <label class="form-check-label" for="hbgApos">A+</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input hosp-blood-filter" type="checkbox" id="hbgAneg" value="A-" onchange="loadInventoryForHospital()">
+                                <label class="form-check-label" for="hbgAneg">A-</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input hosp-blood-filter" type="checkbox" id="hbgBpos" value="B+" onchange="loadInventoryForHospital()">
+                                <label class="form-check-label" for="hbgBpos">B+</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input hosp-blood-filter" type="checkbox" id="hbgBneg" value="B-" onchange="loadInventoryForHospital()">
+                                <label class="form-check-label" for="hbgBneg">B-</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input hosp-blood-filter" type="checkbox" id="hbgOpos" value="O+" onchange="loadInventoryForHospital()">
+                                <label class="form-check-label" for="hbgOpos">O+</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input hosp-blood-filter" type="checkbox" id="hbgOneg" value="O-" onchange="loadInventoryForHospital()">
+                                <label class="form-check-label" for="hbgOneg">O-</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input hosp-blood-filter" type="checkbox" id="hbgABpos" value="AB+" onchange="loadInventoryForHospital()">
+                                <label class="form-check-label" for="hbgABpos">AB+</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input hosp-blood-filter" type="checkbox" id="hbgABneg" value="AB-" onchange="loadInventoryForHospital()">
+                                <label class="form-check-label" for="hbgABneg">AB-</label>
+                            </div>
+                            <hr>
+                            <button class="btn btn-outline-secondary btn-sm w-100" onclick="document.querySelectorAll('.hosp-blood-filter').forEach(cb => cb.checked = false); loadInventoryForHospital();">Clear Filters</button>
+                        </div>
+                        
+                        <!-- Main Table Content -->
+                        <div class="col-md-9 p-4">
+                            <div class="table-responsive">
                         <table class="table table-hover">
                             <thead class="table-light">
                                 <tr>
@@ -207,6 +249,8 @@
                                 </tr>
                             </tbody>
                         </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -252,6 +296,13 @@
                 userGreeting.textContent = `Welcome, ${user.name}!`;
                 userGreeting.style.display = 'inline';
                 logoutBtn.style.display = 'inline-block';
+                
+                // Auto-fill hospital name in form
+                const hospNameInput = document.getElementById('hospName');
+                if (hospNameInput) {
+                    hospNameInput.value = user.name;
+                    hospNameInput.readOnly = true;
+                }
             } else {
                 authContainer.classList.add('show');
                 formContainer.classList.remove('show');
@@ -325,14 +376,29 @@
 
         // Load inventory for hospital view (with Order buttons)
         async function loadInventoryForHospital() {
+            let data = [];
             try {
+                // Try to fetch from backend database first
                 const response = await fetch('/api/inventory');
-                const data = await response.json();
+                if (!response.ok) throw new Error('Backend disconnected');
+                data = await response.json();
+            } catch (backendError) {
+                console.log("Backend not connected, using localStorage fallback.");
+                // Fallback to local storage if backend isn't ready
+                data = JSON.parse(localStorage.getItem('bloodbank_inventory')) || [];
+            }
+
+            try {
                 const tableBody = document.getElementById('inventoryTableBody');
                 tableBody.innerHTML = '';
 
+                const checkedBoxes = Array.from(document.querySelectorAll('.hosp-blood-filter:checked')).map(cb => cb.value);
+                if (checkedBoxes.length > 0) {
+                    data = data.filter(item => checkedBoxes.includes(item.blood_group));
+                }
+
                 if (data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No data in database.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No inventory found. Awaiting database connection.</td></tr>';
                     return;
                 }
 
@@ -376,7 +442,7 @@
                 });
 
             } catch (e) {
-                document.getElementById('inventoryTableBody').innerHTML = '<tr><td colspan="5" class="text-center text-danger">Database Connection Failed.</td></tr>';
+                document.getElementById('inventoryTableBody').innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error Loading Inventory.</td></tr>';
             }
         }
 
@@ -384,7 +450,19 @@
         document.getElementById('logoutBtn').onclick = logout;
 
         // Initialize on page load
-        window.onload = updateUI;
+        window.onload = () => {
+            updateUI();
+            
+            // Check for emergency URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('urgency') === 'emergency') {
+                const urgencyDropdown = document.getElementById('urgency');
+                if (urgencyDropdown) {
+                    urgencyDropdown.value = 'EMERGENCY';
+                    urgencyDropdown.classList.add('border-danger', 'border-2', 'shadow-sm'); // highlight the dropdown
+                }
+            }
+        };
     </script>
 </body>
 </html>

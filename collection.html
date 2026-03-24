@@ -67,16 +67,42 @@
                                 <div class="tab-pane fade" id="register" role="tabpanel">
                                     <form id="registerForm">
                                         <div class="mb-3">
-                                            <label class="form-label">Centre Name</label>
+                                            <label class="form-label">Collection Centre Name</label>
                                             <input type="text" class="form-control" id="regCentreName" required>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="regEmail" required>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">License / Registration No.</label>
+                                                <input type="text" class="form-control" id="regLicense" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="regEmail" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Password</label>
+                                                <input type="password" class="form-control" id="regPassword" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Contact Person</label>
+                                                <input type="text" class="form-control" id="regContactPerson" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Phone Number</label>
+                                                <input type="tel" class="form-control" id="regPhone" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">City/Region</label>
+                                                <input type="text" class="form-control" id="regCity" required>
+                                            </div>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Password</label>
-                                            <input type="password" class="form-control" id="regPassword" required>
+                                            <label class="form-label">Full Address</label>
+                                            <input type="text" class="form-control" id="regAddress" required>
                                         </div>
                                         <button type="submit" class="btn btn-success w-100 py-2">Register</button>
                                     </form>
@@ -100,6 +126,10 @@
                         </div>
                         <div class="card-body p-4">
                             <form id="collectionForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Collection Centre Name</label>
+                                    <input type="text" class="form-control" id="colCentreName">
+                                </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Blood Group</label>
@@ -182,6 +212,13 @@
                 userGreeting.textContent = `Welcome, ${user.name}!`;
                 userGreeting.style.display = 'inline';
                 logoutBtn.style.display = 'inline-block';
+                
+                // Auto-fill centre name in form
+                const centreNameInput = document.getElementById('colCentreName');
+                if (centreNameInput) {
+                    centreNameInput.value = user.name;
+                    centreNameInput.readOnly = true;
+                }
             } else {
                 authContainer.classList.add('show');
                 formContainer.classList.remove('show');
@@ -212,8 +249,13 @@
         document.getElementById('registerForm').onsubmit = (e) => {
             e.preventDefault();
             const name = document.getElementById('regCentreName').value;
+            const license = document.getElementById('regLicense').value;
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
+            const contactPerson = document.getElementById('regContactPerson').value;
+            const phone = document.getElementById('regPhone').value;
+            const city = document.getElementById('regCity').value;
+            const address = document.getElementById('regAddress').value;
 
             const centres = getCollectionCentres();
             if (centres.find(c => c.email === email)) {
@@ -221,12 +263,21 @@
                 return;
             }
 
-            centres.push({ name, email, password });
+            centres.push({ name, license, email, password, contactPerson, phone, city, address });
             saveCollectionCentres(centres);
             setCurrentUser({ role: 'collection_centre', name, email });
             updateUI();
             document.getElementById('registerForm').reset();
         };
+
+        function getInventory() {
+            const data = localStorage.getItem('bloodbank_inventory');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveInventory(inventory) {
+            localStorage.setItem('bloodbank_inventory', JSON.stringify(inventory));
+        }
 
         // Collection form handler
         document.getElementById('collectionForm').onsubmit = (e) => {
@@ -234,12 +285,23 @@
             const collectionData = {
                 blood_group: document.getElementById('bloodGroup').value,
                 component_type: document.getElementById('componentType').value,
-                units: document.getElementById('units').value,
+                quantity: parseInt(document.getElementById('units').value),
                 collection_date: document.getElementById('collectionDate').value,
                 donor_id: document.getElementById('donorId').value,
-                centre_name: getCurrentUser().name
+                centre_name: getCurrentUser().name,
+                status: 'Available'
             };
-            alert('Blood collection added to inventory: ' + collectionData.blood_group + ' - ' + collectionData.units + ' units');
+            
+            const inventory = getInventory();
+            const existing = inventory.find(i => i.blood_group === collectionData.blood_group && i.component_type === collectionData.component_type);
+            if(existing) {
+                existing.quantity += collectionData.quantity;
+            } else {
+                inventory.push(collectionData);
+            }
+            saveInventory(inventory);
+            
+            alert('Blood collection added to inventory: ' + collectionData.blood_group + ' - ' + collectionData.quantity + ' units');
             document.getElementById('collectionForm').reset();
         };
 

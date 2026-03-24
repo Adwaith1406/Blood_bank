@@ -23,11 +23,60 @@
 
     <div class="container my-5">
         <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-white border-0 py-3">
-                <h4 class="mb-0 fw-bold">Current Blood Inventory</h4>
+        <div class="row">
+            <!-- Left Sidebar Filter -->
+            <div class="col-md-3 mb-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="mb-0 fw-bold"><i class="fas fa-filter me-2 text-danger"></i>Needed Group</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input blood-filter" type="checkbox" id="bgApos" value="A+" onchange="loadInventory()">
+                            <label class="form-check-label" for="bgApos">A+</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input blood-filter" type="checkbox" id="bgAneg" value="A-" onchange="loadInventory()">
+                            <label class="form-check-label" for="bgAneg">A-</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input blood-filter" type="checkbox" id="bgBpos" value="B+" onchange="loadInventory()">
+                            <label class="form-check-label" for="bgBpos">B+</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input blood-filter" type="checkbox" id="bgBneg" value="B-" onchange="loadInventory()">
+                            <label class="form-check-label" for="bgBneg">B-</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input blood-filter" type="checkbox" id="bgOpos" value="O+" onchange="loadInventory()">
+                            <label class="form-check-label" for="bgOpos">O+</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input blood-filter" type="checkbox" id="bgOneg" value="O-" onchange="loadInventory()">
+                            <label class="form-check-label" for="bgOneg">O-</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input blood-filter" type="checkbox" id="bgABpos" value="AB+" onchange="loadInventory()">
+                            <label class="form-check-label" for="bgABpos">AB+</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input blood-filter" type="checkbox" id="bgABneg" value="AB-" onchange="loadInventory()">
+                            <label class="form-check-label" for="bgABneg">AB-</label>
+                        </div>
+                        <hr>
+                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="document.querySelectorAll('.blood-filter').forEach(cb => cb.checked = false); loadInventory();">Clear Filters</button>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
+
+            <!-- Main Table Content -->
+            <div class="col-md-9">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h4 class="mb-0 fw-bold">Current Blood Inventory</h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
@@ -50,34 +99,51 @@
                 </div>
             </div>
         </div>
+        </div>
     </div>
 
     <script>
         async function loadInventory() {
+            let data = [];
+            try {
+                // Try to fetch from backend database first
+                const response = await fetch('/api/inventory');
+                if (!response.ok) throw new Error('Backend disconnected');
+                data = await response.json();
+            } catch (backendError) {
+                console.log("Backend not connected, using localStorage fallback.");
+                // Fallback to local storage if backend isn't ready
+                data = JSON.parse(localStorage.getItem('bloodbank_inventory')) || [];
+            }
 
             try {
-                const response = await fetch('/api/inventory');
-                const data = await response.json();
                 const tableBody = document.getElementById('inventoryTableBody');
-                tableBody.innerHTML = ''; 
+                tableBody.innerHTML = '';
+
+                const checkedBoxes = Array.from(document.querySelectorAll('.blood-filter:checked')).map(cb => cb.value);
+                if (checkedBoxes.length > 0) {
+                    data = data.filter(item => checkedBoxes.includes(item.blood_group));
+                }
 
                 if (data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No data in database.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No inventory found. Awaiting database connection.</td></tr>';
                     return;
                 }
 
                 data.forEach(item => {
+                    const statusClass = item.status === 'Available' ? 'bg-available' : 'bg-critical';
                     tableBody.innerHTML += `
                         <tr>
                             <td class="ps-4 fw-bold text-danger">${item.blood_group}</td>
                             <td>${item.component_type}</td>
                             <td>${item.quantity}</td>
-                            <td><span class="status-badge ${item.status === 'Available' ? 'bg-available' : 'bg-critical'}">${item.status}</span></td>
-                            <td class="text-center"><button class="btn btn-sm btn-outline-dark">Details</button></td>
+                            <td><span class="status-badge ${statusClass}">${item.status}</span></td>
+                            <td class="text-center"><button class="btn btn-sm btn-outline-dark" onclick="alert('Please log in through the Hospital Portal to place an order.')">View Details</button></td>
                         </tr>`;
                 });
+
             } catch (e) {
-                document.getElementById('inventoryTableBody').innerHTML = '<tr><td colspan="5" class="text-center text-danger">Database Connection Failed.</td></tr>';
+                document.getElementById('inventoryTableBody').innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error Loading Inventory.</td></tr>';
             }
         }
         window.onload = loadInventory;

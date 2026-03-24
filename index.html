@@ -142,7 +142,7 @@
                     <p class="text-muted small">Place blood requests and monitor inventory levels.</p>
                     <div class="mt-auto d-grid gap-2">
                         <a href="request.html" class="btn btn-outline-danger">Access Hospital Portal</a>
-                        <a href="request.html" class="btn btn-emergency"><i class="fas fa-ambulance me-2"></i>Emergency
+                        <a href="request.html?urgency=emergency" class="btn btn-emergency"><i class="fas fa-ambulance me-2"></i>Emergency
                             Request</a>
                     </div>
                 </div>
@@ -195,7 +195,7 @@
 
             if (user) {
                 navbarRight.innerHTML = `
-                    <span class="text-white me-3">Welcome, ${user.name} (${user.role})</span>
+                    <span class="text-white me-3">Welcome, ${user.name}</span>
                     <button onclick="logout()" class="btn btn-outline-light btn-sm">Logout</button>
                 `;
             }
