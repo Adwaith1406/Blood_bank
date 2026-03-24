@@ -75,44 +75,42 @@
     </header>
 
     <div class="container my-5">
-        
-        <div class="row g-3 justify-content-center mb-5">
-            <div class="col-md-5">
-                <a href="request.html" class="btn btn-emergency btn-lg w-100 py-3 shadow-sm">
-                    <i class="fas fa-ambulance me-2"></i>EMERGENCY REQUEST
-                </a>
-            </div>
-            <div class="col-md-5">
-                <a href="donor.html" class="btn btn-outline-dark btn-lg w-100 py-3 shadow-sm bg-white">
-                    <i class="fas fa-user-plus me-2"></i>REGISTER AS DONOR
-                </a>
-            </div>
-        </div>
 
         <div class="row g-4 text-center">
             <div class="col-md-4">
                 <div class="card h-100 card-hover p-4 shadow-sm">
-                    <i class="fas fa-heartbeat fa-3x text-danger mb-3"></i>
+                    <i class="fas fa-user-plus fa-3x text-danger mb-3"></i>
                     <h3>For Donors</h3>
-                    <p class="text-muted small">Update your donation status and health eligibility.</p>
-                    <a href="donor.html" class="btn btn-outline-danger mt-auto">Register Now</a>
+                    <p class="text-muted small">Register as a donor and update your donation status.</p>
+                    <a href="donor.html" class="btn btn-outline-danger mt-auto">Access Donor Portal</a>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 card-hover p-4 shadow-sm">
+                <div class="card h-100 card-hover p-4 shadow-sm d-flex flex-column">
                     <i class="fas fa-hospital fa-3x text-danger mb-3"></i>
                     <h3>For Hospitals</h3>
-                    <p class="text-muted small">Quickly identify required blood groups and monitor units.</p>
-                    <a href="request.html" class="btn btn-outline-danger mt-auto">Place Request</a>
+                    <p class="text-muted small">Place blood requests and monitor inventory levels.</p>
+                    <div class="mt-auto d-grid gap-2">
+                        <a href="request.html" class="btn btn-outline-danger">Access Hospital Portal</a>
+                        <a href="request.html" class="btn btn-emergency"><i class="fas fa-ambulance me-2"></i>Emergency Request</a>
+                    </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card h-100 card-hover p-4 shadow-sm">
-                    <i class="fas fa-database fa-3x text-danger mb-3"></i>
-                    <h3>Inventory</h3>
-                    <p class="text-muted small">Monitor blood inventory levels and prevent expired distribution.</p>
-                    <a href="inventory.html" class="btn btn-outline-danger mt-auto">View Stock</a>
+                    <i class="fas fa-flask fa-3x text-danger mb-3"></i>
+                    <h3>Collection Centres</h3>
+                    <p class="text-muted small">Add collected blood units to the inventory system.</p>
+                    <a href="collection.html" class="btn btn-outline-danger mt-auto">Access Collection Portal</a>
                 </div>
+            </div>
+        </div>
+
+        <div class="row g-3 justify-content-center mb-5 mt-4">
+            <div class="col-md-4">
+                <a href="inventory.html" class="btn btn-info btn-lg w-100 py-3 shadow-sm">
+                    <i class="fas fa-database me-2"></i>VIEW INVENTORY
+                </a>
             </div>
         </div>
     </div>
@@ -136,6 +134,24 @@
     </footer>
 
     <script>
+        // Check if user is logged in and update header
+        function updateNavbar() {
+            const user = JSON.parse(localStorage.getItem('bloodbank_currentUser'));
+            const navbarRight = document.querySelector('.navbar-nav.ms-auto');
+            
+            if (user) {
+                navbarRight.innerHTML = `
+                    <span class="text-white me-3">Welcome, ${user.name} (${user.role})</span>
+                    <button onclick="logout()" class="btn btn-outline-light btn-sm">Logout</button>
+                `;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('bloodbank_currentUser');
+            location.reload();
+        }
+
         const exitBtn = document.getElementById('exitBtn');
         if (exitBtn) {
             exitBtn.addEventListener('click', () => {
@@ -153,6 +169,8 @@
                 }, 100);
             });
         }
+
+        window.onload = updateNavbar;
     </script>
 </body>
 </html>

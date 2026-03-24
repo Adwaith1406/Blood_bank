@@ -54,6 +54,7 @@
 
     <script>
         async function loadInventory() {
+
             try {
                 const response = await fetch('/api/inventory');
                 const data = await response.json();
