@@ -73,13 +73,45 @@
                                             <label class="form-label">Hospital Name</label>
                                             <input type="text" class="form-control" id="regHospitalName" required>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="regEmail" required>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">License / Registration No.</label>
+                                                <input type="text" class="form-control" id="regLicense" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Hospital Type</label>
+                                                <select class="form-select" id="regType" required>
+                                                    <option value="" disabled selected>Select Type</option>
+                                                    <option>Government</option>
+                                                    <option>Private</option>
+                                                    <option>Clinic</option>
+                                                    <option>Multi-Speciality</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="regEmail" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Password</label>
+                                                <input type="password" class="form-control" id="regPassword" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Contact Person</label>
+                                                <input type="text" class="form-control" id="regContactPerson" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Emergency Phone</label>
+                                                <input type="tel" class="form-control" id="regPhone" required>
+                                            </div>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Password</label>
-                                            <input type="password" class="form-control" id="regPassword" required>
+                                            <label class="form-label">Full Address</label>
+                                            <input type="text" class="form-control" id="regAddress" required>
                                         </div>
                                         <button type="submit" class="btn btn-dark w-100 py-2">Register</button>
                                     </form>
@@ -250,8 +282,13 @@
         document.getElementById('registerForm').onsubmit = (e) => {
             e.preventDefault();
             const name = document.getElementById('regHospitalName').value;
+            const license = document.getElementById('regLicense').value;
+            const type = document.getElementById('regType').value;
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
+            const contactPerson = document.getElementById('regContactPerson').value;
+            const phone = document.getElementById('regPhone').value;
+            const address = document.getElementById('regAddress').value;
 
             const hospitals = getHospitals();
             if (hospitals.find(h => h.email === email)) {
@@ -259,7 +296,7 @@
                 return;
             }
 
-            hospitals.push({ name, email, password });
+            hospitals.push({ name, license, type, email, password, contactPerson, phone, address });
             saveHospitals(hospitals);
             setCurrentUser({ role: 'hospital', name, email });
             updateUI();

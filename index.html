@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,15 +9,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Greyish Background */
-        body { 
-            background-color: #f0f2f5; 
+        body {
+            background-color: #f0f2f5;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
         /* The Dark Navbar from previous design */
-        .navbar { background-color: #212529 !important; }
+        .navbar {
+            background-color: #212529 !important;
+        }
 
         /* Curved App Name Header */
         .curved-header {
@@ -28,15 +31,16 @@
         }
 
         /* Action Buttons & Cards */
-        .card-hover { 
-            transition: 0.3s; 
-            border: none; 
+        .card-hover {
+            transition: 0.3s;
+            border: none;
             border-radius: 15px;
             background: white;
         }
-        .card-hover:hover { 
-            transform: translateY(-8px); 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
         .btn-emergency {
@@ -45,24 +49,30 @@
             font-weight: bold;
             border-radius: 10px;
         }
-        .btn-emergency:hover { background-color: #a71d2a; color: white; }
+
+        .btn-emergency:hover {
+            background-color: #a71d2a;
+            color: white;
+        }
 
         /* Footer at the very bottom */
         .footer-desc {
             background-color: #ffffff;
             border-top: 1px solid #dee2e6;
             padding: 40px 0;
-            margin-top: auto; 
+            margin-top: auto;
         }
     </style>
 </head>
+
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#"><i class="fas fa-tint me-2 text-danger"></i>LifeLine Blood Bank</a>
             <div class="navbar-nav ms-auto">
-                <button id="exitBtn" type="button" class="btn btn-link btn-sm text-white text-decoration-none p-0">EXIT</button>
+                <button id="exitBtn" type="button"
+                    class="btn btn-link btn-sm text-white text-decoration-none p-0">EXIT</button>
             </div>
         </div>
     </nav>
@@ -73,6 +83,46 @@
             <p class="opacity-75 italic small">"Saving Seconds, Saving Lives."</p>
         </div>
     </header>
+
+    <!-- Full Width Emergency Alert Ticker using pure CSS -->
+    <style>
+        .css-ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            background-color: #f5e298;
+            /* Changed to a bright warning yellow */
+            color: #000;
+            padding: 10px 0;
+            white-space: nowrap;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .css-ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker-animation 20s linear infinite;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        @keyframes ticker-animation {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
+    <div class="css-ticker-wrap">
+        <div class="css-ticker-text">
+            <i class="fas fa-exclamation-circle text-danger me-2"></i> Urgent Blood Alert: Need A+ blood in Ernakulam
+            General Hospital. Help save lives with every unit of blood donated. <i
+                class="fas fa-exclamation-circle text-danger ms-2"></i>
+        </div>
+    </div>
+    </div> <!-- End Header & Alert Wrapper -->
 
     <div class="container my-5">
 
@@ -92,7 +142,8 @@
                     <p class="text-muted small">Place blood requests and monitor inventory levels.</p>
                     <div class="mt-auto d-grid gap-2">
                         <a href="request.html" class="btn btn-outline-danger">Access Hospital Portal</a>
-                        <a href="request.html" class="btn btn-emergency"><i class="fas fa-ambulance me-2"></i>Emergency Request</a>
+                        <a href="request.html" class="btn btn-emergency"><i class="fas fa-ambulance me-2"></i>Emergency
+                            Request</a>
                     </div>
                 </div>
             </div>
@@ -121,11 +172,14 @@
                 <div class="col-md-10">
                     <h6 class="text-uppercase fw-bold text-muted small mb-3">About</h6>
                     <p class="text-secondary small px-lg-5">
-                        Designed to optimize the availability of safe blood, this system helps hospitals monitor inventory levels in real-time and prevent the distribution of expired units. We believe that technology should serve humanity, specifically by improving patient well-being and healthcare efficiency
+                        Designed to optimize the availability of safe blood, this system helps hospitals monitor
+                        inventory levels in real-time and prevent the distribution of expired units. We believe that
+                        technology should serve humanity, specifically by improving patient well-being and healthcare
+                        efficiency
                     </p>
                     <hr class="w-25 mx-auto my-4">
                     <p class="mb-0 fw-bold small text-dark">
-                        Team : Adwaith T M , Aman Alex M , Ammesha Prasanth ,  Anandhu Babu
+                        Team : Adwaith T M , Aman Alex M , Ammesha Prasanth , Anandhu Babu
                     </p>
                     <p class="text-muted x-small mt-1">MAR ATHANASIUS COLLEGE OF ENGINEERING</p>
                 </div>
@@ -138,7 +192,7 @@
         function updateNavbar() {
             const user = JSON.parse(localStorage.getItem('bloodbank_currentUser'));
             const navbarRight = document.querySelector('.navbar-nav.ms-auto');
-            
+
             if (user) {
                 navbarRight.innerHTML = `
                     <span class="text-white me-3">Welcome, ${user.name} (${user.role})</span>
@@ -173,4 +227,5 @@
         window.onload = updateNavbar;
     </script>
 </body>
+
 </html>
